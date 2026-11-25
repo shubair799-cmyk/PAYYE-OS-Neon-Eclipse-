@@ -1,0 +1,37 @@
+name: Build PAYYE OS APK
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main, master]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Extract PAYYE project
+        run: |
+          unzip -o PAYYE_OS_Neon_Eclipse.zip -d extracted
+          cp -r extracted/PAYYE_OS_Neon_Eclipse/. .
+
+      - name: Build APK
+        uses: gradle/gradle-build-action@v3
+        with:
+          gradle-version: '8.2'
+          arguments: assembleDebug
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: PAYYE-OS-Neon-Eclipse
+          path: app/build/outputs/apk/debug/*.apk
